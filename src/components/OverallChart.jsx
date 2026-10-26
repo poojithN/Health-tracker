@@ -1,9 +1,9 @@
-import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, Legend } from "recharts";
 
 function OverallChart({ records }) {
   // Add up all intake and all burned calories
-  const totalIntake = records.reduce((sum, r) => sum + r.calorieIntake, 0);
-  const totalBurned = records.reduce((sum, r) => sum + r.calorieBurned, 0);
+  const totalIntake = records.reduce((sum, r) => sum + Number(r.calorieIntake), 0);
+  const totalBurned = records.reduce((sum, r) => sum + Number(r.calorieBurned), 0);
 
   const data = [
     { name: "Intake", value: totalIntake },
@@ -17,24 +17,23 @@ function OverallChart({ records }) {
   return (
     <div className="overall">
       <h2 className="section-title">Overall Data</h2>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            outerRadius={100}
-            label={renderLabel}
-            labelLine={false}
-            stroke="#fff"
-          >
-            {data.map((entry, index) => (
-              <Cell key={entry.name} fill={COLORS[index]} />
-            ))}
-          </Pie>
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
+      <PieChart width={300} height={300}>
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="name"
+          outerRadius={100}
+          label={renderLabel}
+          labelLine={false}
+          stroke="#fff"
+          isAnimationActive={false}
+        >
+          {data.map((entry, index) => (
+            <Cell key={entry.name} fill={COLORS[index]} />
+          ))}
+        </Pie>
+        <Legend />
+      </PieChart>
     </div>
   );
 }

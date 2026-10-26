@@ -7,13 +7,10 @@ import "./App.css";
 
 const STORAGE_KEY = "healthAndFitness"; // exact key required
 
-// Turns a Date object into "YYYY-MM-DD" using LOCAL time
-// (toISOString would use UTC and can shift the day)
-function toDateString(d) {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+// Turns "YYYY-MM-DD" into a timestamp for midnight (local time) of that day
+function dayStart(dateStr) {
+  const [y, m, d] = String(dateStr).slice(0, 10).split("-").map(Number);
+  return new Date(y, m - 1, d).getTime();
 }
 
 function App() {
@@ -72,24 +69,30 @@ function App() {
   };
 
   // ---------- Derived data ----------
-  // Newest date first (YYYY-MM-DD strings sort correctly as text)
-  const sortedRecords = [...records].sort((a, b) =>
-    b.date.localeCompare(a.date)
+  // Newest date first
+  const sortedRecords = [...records].sort(
+    (a, b) => dayStart(b.date) - dayStart(a.date)
   );
 
-  // Last 7 CALENDAR days (today and the 6 days before), not last 7 records
-  const today = new Date();
-  const sixDaysAgo = new Date();
-  sixDaysAgo.setDate(today.getDate() - 6);
-  const todayStr = toDateString(today);
-  const startStr = toDateString(sixDaysAgo);
 
-  const weeklyRecords = sortedRecords.filter(
-    (r) => r.date >= startStr && r.date <= todayStr
-  );
+    // Last 7 calendar days: today and the 6 days before it
+  const now = new Date();
+  const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6).getTime();
+  // Allow up to tomorrow, so UTC vs local date differences can't hide today's record
+  const weekEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime();
 
-  // 👇 add this line here (temporary, for debugging)
-  console.log("range:", startStr, "to", todayStr, "| weekly:", weeklyRecords);
+  const weeklyRecords = sortedRecords.filter((r) => {
+    const t = dayStart(r.date);
+    return t >= weekStart && t <= weekEnd;
+  });
+
+  // Make sure the chart always receives real numbers
+  const chartData = weeklyRecords.map((r) => ({
+    ...r,
+    date: String(r.date).slice(0, 10),
+    calorieIntake: Number(r.calorieIntake),
+    calorieBurned: Number(r.calorieBurned),
+  }));
 
   return (
     <div className="app">
@@ -97,14 +100,15 @@ function App() {
 
       <section className="top-panel">
         <div className="add-card">
+          {/* Hidden while the modal is open so the text isn't on the page twice */}
           {!isModalOpen && <h2>{"Update Today's Data"}</h2>}
           <button className="add-btn" onClick={openAddForm}>
             + Add data
           </button>
         </div>
 
-        {/* Bar chart hidden until at least one record exists */}
-        {records.length > 0 && <WeeklyChart data={weeklyRecords} />}
+        {/* Bar chart is hidden until at least one record exists */}
+        {records.length > 0 && <WeeklyChart data={chartData} />}
       </section>
 
       <section className="bottom-panel">
@@ -113,7 +117,7 @@ function App() {
           onEdit={openEditForm}
           onDelete={handleDelete}
         />
-        {/* Pie chart always visible */}
+        {/* Pie chart is always visible */}
         <OverallChart records={records} />
       </section>
 

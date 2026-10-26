@@ -16,7 +16,10 @@ function RecentStats({ records, onEdit, onDelete }) {
             </div>
             <div className="stat-actions">
               <span className="stat-date">{r.date}</span>
-              <button className="icon-btn delete" onClick={() => onDelete(r.id)}>
+              <button
+                className="icon-btn delete"
+                onClick={() => onDelete(r.id)}
+              >
                 <MdOutlineCancel size={24} />
               </button>
               <button className="icon-btn edit" onClick={() => onEdit(r)}>

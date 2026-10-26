@@ -25,7 +25,7 @@ function HealthForm({ mode, record, onSubmit, onCancel }) {
 
     onSubmit({
       date,
-      calorieIntake: Number(intake),
+      calorieIntake: Number(intake), // saved as numbers, not text
       calorieBurned: Number(burned),
       description: description.trim(),
     });
@@ -35,8 +35,10 @@ function HealthForm({ mode, record, onSubmit, onCancel }) {
     <div className="modal-overlay">
       <div className="modal">
         <h2>
-  {mode === "edit" ? "Let's see what you want to change!" : "Update Today's Data"}
-</h2>
+          {mode === "edit"
+            ? "Let's see what you want to change!"
+            : "Update Today's Data"}
+        </h2>
 
         <form onSubmit={handleFormSubmit}>
           <div className="form-row">
@@ -84,7 +86,9 @@ function HealthForm({ mode, record, onSubmit, onCancel }) {
 
           {error && <p className="error">{error}</p>}
 
-          <button type="submit" className="submit-btn">Submit</button>
+          <button type="submit" className="submit-btn">
+            Submit
+          </button>
           <button type="button" className="cancel-btn" onClick={onCancel}>
             Cancel
           </button>
