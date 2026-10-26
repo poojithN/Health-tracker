@@ -108,7 +108,7 @@ function App() {
         </div>
 
         {/* Bar chart is hidden until at least one record exists */}
-        {records.length > 0 && <WeeklyChart data={chartData} />}
+        {chartData.length > 0 && <WeeklyChart data={chartData} />}
       </section>
 
       <section className="bottom-panel">
